@@ -2,7 +2,6 @@ use std::time::Duration;
 
 mod histogram;
 
-
 fn main() {
     let mut h = histogram::histogram::Histogram::new();
     h.add(Duration::new(10, 0));

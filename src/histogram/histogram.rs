@@ -1,5 +1,5 @@
+use std::ops::{Add, Div, Index, Mul, Sub};
 use std::time::Duration;
-use std::ops::{Add, Sub, Div, Mul, Index};
 
 #[derive(Debug)]
 pub struct Histogram {
