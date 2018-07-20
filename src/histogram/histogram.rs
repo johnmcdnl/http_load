@@ -9,6 +9,9 @@ pub struct Histogram {
     mean: Duration,
     harmonic_mean: Duration,
     standard_deviation: Duration,
+    minimum: Duration,
+    maximum: Duration,
+    range: Duration,
 }
 
 impl Histogram {
@@ -20,6 +23,9 @@ impl Histogram {
             mean: Duration::new(0, 0),
             harmonic_mean: Duration::new(0, 0),
             standard_deviation: Duration::new(0, 0),
+            minimum: Duration::new(0, 0),
+            maximum: Duration::new(0, 0),
+            range: Duration::new(0, 0),
         };
         histogram.calculate();
         histogram
@@ -28,7 +34,6 @@ impl Histogram {
     pub fn add(&mut self, duration: Duration) {
         self.durations.push(duration);
         self.durations_as_nano.push(nanoseconds(duration));
-        self.length();
         self.calculate();
     }
 
@@ -38,6 +43,9 @@ impl Histogram {
             self.mean();
             self.harmonic_mean();
             self.standard_deviation();
+            self.maximum();
+            self.minimum();
+            self.range();
         }
     }
 
@@ -76,6 +84,30 @@ impl Histogram {
         println!("{:?}", sum_diff);
         let std_dev = { sum_diff.div((self.length() - 1) as i128) as f64 }.sqrt();
         self.standard_deviation = Duration::from_nanos(std_dev as u64);
+    }
+
+    fn minimum(&mut self) {
+        for duration in self.durations.iter() {
+            if *duration < self.minimum {
+                self.minimum = *duration;
+                return;
+            }
+            if nanoseconds(self.minimum) == 0 {
+                self.minimum = *duration;
+            }
+        }
+    }
+
+    fn maximum(&mut self) {
+        for duration in self.durations.iter() {
+            if *duration > self.maximum {
+                self.maximum = *duration;
+            }
+        }
+    }
+
+    fn range(&mut self) {
+        self.range = self.maximum.sub(self.minimum);
     }
 
     pub fn percentile(&mut self, p: f64) -> Duration {
