@@ -1,6 +1,5 @@
 use std::time::Duration;
-use std::ops::Div;
-use std::ops::Add;
+use std::ops::{Div, Mul, Add};
 
 #[derive(Debug)]
 pub struct Histogram {
@@ -28,32 +27,41 @@ impl Histogram {
     }
 
     fn calculate(&mut self) {
-        self.cumulative();
-        self.mean();
-        self.harmonic_mean();
+        if self.length() > 0 {
+            self.cumulative();
+            self.mean();
+            self.harmonic_mean();
+        }
     }
 
     fn cumulative(&mut self) {
-        self.cumulative = Duration::new(0, 0);
-        for d in self.durations.iter() {
-            self.cumulative.add(*d);
-        }
+        self.cumulative = self.durations.iter().sum();
+    }
 
+    fn length(&mut self) -> i64 {
+        self.durations.len() as i64
     }
 
     fn mean(&mut self) {
-        self.mean = self.cumulative.div(self.durations.len() as u32)
+        self.mean = self.cumulative.div(self.length() as u32)
     }
 
     fn harmonic_mean(&mut self) {
-
+        let mut sum_reciprocals = 0 as f64;
+        for duration in self.durations.iter() {
+            sum_reciprocals = sum_reciprocals.add({ 1 as f64 }.div(nanoseconds(*duration) as f64));
+        }
+        let nanos = { self.length() as f64 }.div(sum_reciprocals) as u64;
+        self.harmonic_mean = Duration::from_nanos(nanos);
     }
 }
 
 fn fake_duration_data() -> Vec<Duration> {
-    let mut data = Vec::new();
-    data.push(Duration::new(1, 1));
-    data.push(Duration::new(2, 2));
-    data.push(Duration::new(3, 3));
+    let data = Vec::new();
+
     data
+}
+
+fn nanoseconds(d: Duration) -> u64 {
+    d.as_secs().mul(1_000_000_000) + d.subsec_nanos() as u64
 }
