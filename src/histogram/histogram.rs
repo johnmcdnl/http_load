@@ -1,7 +1,10 @@
+extern crate serde;
+extern crate serde_json;
+
 use std::ops::{Add, Div, Index, Mul, Sub};
 use std::time::Duration;
 
-#[derive(Debug)]
+#[derive(Serialize, Debug)]
 pub struct Histogram {
     durations: Vec<Duration>,
     durations_as_nano: Vec<i64>,
@@ -113,6 +116,10 @@ impl Histogram {
     pub fn percentile(&mut self, p: f64) -> Duration {
         let index = { { self.length() as f64 }.mul(p.add(0.5)) } as usize - 1;
         *self.durations.index(index)
+    }
+
+    pub fn json(&self) -> String {
+        serde_json::to_string(&self).unwrap()
     }
 }
 

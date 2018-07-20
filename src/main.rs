@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate serde_derive;
+
 use std::time::Duration;
 
 mod histogram;
@@ -10,4 +13,5 @@ fn main() {
 
     println!("{:?}", h);
     println!("{:?}", h.percentile(0.50));
+    println!("{:?}", h.json());
 }
