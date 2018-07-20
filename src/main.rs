@@ -4,8 +4,6 @@ mod histogram;
 
 
 fn main() {
-    println!("Hello, world!");
-
 
     let mut h = histogram::histogram::Histogram::new();
     h.add(Duration::new(10, 0));
