@@ -1,14 +1,13 @@
-mod hdr_histogram;
+use std::time::Duration;
+
+mod histogram;
 
 
 fn main() {
     println!("Hello, world!");
 
-    let h = hdr_histogram::hdr_histogram::HdrHistogram::new(300, 1000, 3);
-    let s = hdr_histogram::snapshot::Snapshot::new();
-    let b = hdr_histogram::bracket::Bracket::new();
 
+    let mut h = histogram::histogram::Histogram::new();
+    h.add(Duration::new(3, 3));
     println!("{:?}", h);
-    println!("{:?}", s);
-    println!("{:?}", b);
 }
