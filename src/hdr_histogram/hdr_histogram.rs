@@ -20,7 +20,6 @@ impl HdrHistogram {
             panic!("sig_figs should be between 1-5 but was given {:?}", sig_figs)
         }
 
-
         let unit_magnitude = if { min_value as f64 }.log2().floor() as i64 != 0 {
             { min_value as f64 }.log2().floor() as i64
         } else {
@@ -29,7 +28,6 @@ impl HdrHistogram {
 
         let largest_value_with_single_unit_resolution = { sig_figs as f64 }.powi(10);
         let sub_bucket_count_magnitude = { largest_value_with_single_unit_resolution.log2().ceil() };
-
 
         let sub_bucket_half_count_magnitude = if { sub_bucket_count_magnitude as i64 } < 1 {
             1
