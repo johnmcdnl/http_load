@@ -6,6 +6,8 @@ extern crate time;
 pub struct HDRHistogram {
     total_count: isize,
     counts: Vec<u64>,
+    min_value: Duration,
+    max_value: Duration,
     start_time: Instant,
     end_time: Instant,
 }
@@ -15,6 +17,8 @@ impl HDRHistogram {
         let mut h: HDRHistogram = HDRHistogram {
             total_count: 0,
             counts: Vec::new(),
+            min_value: Duration::new(0, 0),
+            max_value: Duration::new(0, 0),
             start_time: Instant::now(),
             end_time: Instant::now(),
         };
@@ -33,9 +37,27 @@ impl HDRHistogram {
     }
 
 
-    pub fn get_max_value(&self) {}
-    pub fn get_min_value(&self) {}
-    pub fn get_min_non_zero_value(&self) {}
+    pub fn get_max_value(&mut self) -> Duration {
+        let max = *match self.counts.iter().max() {
+            Some(i) => i,
+            None => &{ 0 as u64 },
+        };
+        self.max_value = Duration::new(0, max as u32);
+        self.max_value
+    }
+
+    pub fn get_min_value(&mut self) -> Duration {
+        let min = *match self.counts.iter().min() {
+            Some(i) => i,
+            None => &{ 0 as u64 },
+        };
+        self.min_value = Duration::new(0, min as u32);
+        self.min_value
+    }
+
+    pub fn get_min_non_zero_value(&self) -> Duration {
+        Duration::new(0, 0)
+    }
 
     pub fn get_start_time_stamp(&self) -> Instant {
         return self.start_time;
