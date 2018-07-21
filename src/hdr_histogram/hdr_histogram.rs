@@ -1,4 +1,5 @@
 use std::time::{Duration, Instant};
+use std::ops::Div;
 
 extern crate time;
 
@@ -6,10 +7,15 @@ extern crate time;
 pub struct HDRHistogram {
     total_count: isize,
     counts: Vec<u64>,
-    min_value: Duration,
-    max_value: Duration,
+
     start_time: Instant,
     end_time: Instant,
+
+    min_value: Duration,
+    max_value: Duration,
+    sum: Duration,
+    mean: Duration,
+    standard_deviation: Duration,
 }
 
 impl HDRHistogram {
@@ -17,10 +23,15 @@ impl HDRHistogram {
         let mut h: HDRHistogram = HDRHistogram {
             total_count: 0,
             counts: Vec::new(),
-            min_value: Duration::new(0, 0),
-            max_value: Duration::new(0, 0),
+
             start_time: Instant::now(),
             end_time: Instant::now(),
+
+            min_value: Duration::from_nanos(0),
+            max_value: Duration::from_nanos(0),
+            sum: Duration::from_nanos(0),
+            mean: Duration::from_nanos(0),
+            standard_deviation: Duration::from_nanos(0),
         };
         h.set_start_time_stamp();
         h.set_end_time_stamp();
@@ -42,7 +53,7 @@ impl HDRHistogram {
             Some(i) => i,
             None => &{ 0 as u64 },
         };
-        self.max_value = Duration::new(0, max as u32);
+        self.max_value = Duration::from_nanos(max);
         self.max_value
     }
 
@@ -51,7 +62,7 @@ impl HDRHistogram {
             Some(i) => i,
             None => &{ 0 as u64 },
         };
-        self.min_value = Duration::new(0, min as u32);
+        self.min_value = Duration::from_nanos(min);
         self.min_value
     }
 
@@ -75,13 +86,38 @@ impl HDRHistogram {
         self.end_time = Instant::now()
     }
 
-    pub fn get_mean(&self) {}
-    pub fn median_equivalent_value(&self) {}
-
-    pub fn get_std_deviation(&self) -> Duration {
-        Duration::new(0, 0)
+    pub fn get_sum(&mut self) -> Duration {
+        self.sum = Duration::from_nanos(self.counts.iter().sum());
+        self.sum
     }
 
+    pub fn get_mean(&mut self) -> Duration {
+        let sum = duration_as_nanoseconds(self.get_sum());
+        self.mean = Duration::from_nanos(sum / self.counts.len() as u64);
+        self.mean
+    }
+
+    pub fn get_std_deviation(&mut self) -> Duration {
+        if self.counts.len() < 2 {
+            return Duration::from_nanos(0);
+        }
+
+        let mean = duration_as_nanoseconds(self.get_mean());
+
+        let mut sum_diffs = 0 as u128;
+
+        for value in self.counts.iter() {
+            let diff = if mean > *value { mean - value } else { value - mean } as u128;
+            sum_diffs += diff * diff;
+        }
+
+        sum_diffs = sum_diffs.div(self.counts.len() as u128);
+
+        self.standard_deviation = Duration::from_nanos({ sum_diffs as f64 }.sqrt() as u64);
+        self.standard_deviation
+    }
+
+    pub fn median_equivalent_value(&self) {}
     // TODO
 
     //    fn add(&self, histogram: HDRHistogram) {}

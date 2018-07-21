@@ -4,9 +4,11 @@ mod hdr_histogram;
 
 fn main() {
     let mut h = hdr_histogram::hdr_histogram::HDRHistogram::new();
-    h.record_value(Duration::new(1, 100_000_000));
-    h.record_value(Duration::new(2, 200_000_000));
-    h.record_value(Duration::new(3, 300_000_000));
+    h.record_value(Duration::new(1_000, 0));
+    h.record_value(Duration::new(2_000, 0));
+    h.record_value(Duration::new(3_000, 0));
+    h.record_value(Duration::new(4_000, 0));
+    h.record_value(Duration::new(5_000, 0));
     h.get_start_time_stamp();
     h.get_end_time_stamp();
 
