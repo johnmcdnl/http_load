@@ -5,7 +5,7 @@ extern crate time;
 
 #[derive(Debug)]
 pub struct HDRHistogram {
-    total_count: isize,
+    total_count: u64,
     counts: Vec<u64>,
 
     start_time: Instant,
@@ -19,6 +19,18 @@ pub struct HDRHistogram {
 }
 
 impl HDRHistogram {
+    pub fn calc(&mut self) {
+        self.get_start_time_stamp();
+        self.get_end_time_stamp();
+        self.get_mean();
+        self.get_std_deviation();
+        self.median_equivalent_value();
+        self.get_max_value();
+        self.get_min_value();
+        self.get_min_non_zero_value();
+        self.total_count = self.counts.len() as u64;
+    }
+
     pub fn new() -> HDRHistogram {
         let mut h: HDRHistogram = HDRHistogram {
             total_count: 0,
@@ -44,7 +56,6 @@ impl HDRHistogram {
 
     pub fn record_value_nanoseconds(&mut self, nanos: u64) {
         self.counts.push(nanos);
-        self.total_count += 1;
     }
 
 
